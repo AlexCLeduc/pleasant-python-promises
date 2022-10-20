@@ -1,5 +1,10 @@
 # Pleasant python promises
 
+```bash
+pip install pleasant-promises
+```
+
+
 Python promises are a thing, really! But they get ugly quickly. This package lets you handle promises using generator syntax.
 
 Here's what using 3 sequential promises looks like without this package:
@@ -27,11 +32,12 @@ from pleasant_promises import genfunc_to_prom
 
 @genfunc_to_prom
 def resolve_greatgrandparent_name(person,info):
-    parent = await person_loader.load(person.parent_id)
-    grandparent = await person_loader.load(parent.parent_id)
-    great_grandparent = await person_loader.load(grandparent.parent_id)
+    parent = yield person_loader.load(person.parent_id)
+    grandparent = yield person_loader.load(parent.parent_id)
+    great_grandparent = yield person_loader.load(grandparent.parent_id)
     return great_grandparent
 ```
+
 
 ## Usage with Graphql/Graphene
 
@@ -47,8 +53,8 @@ from pleasant_promises.dataloader import Dataloader
 
 class GrandparentLoader(DataLoader):
     def batch_load(self,keys):
-        parents = await person_loader.load_many(keys)
-        grandparents = await person_loader.load_many(parent.parent_id for parent in parents)
+        parents = yield person_loader.load_many(keys)
+        grandparents = yield person_loader.load_many(parent.parent_id for parent in parents)
         # ...
 ```
 
@@ -60,8 +66,9 @@ from pleasant_promises import genfunc_to_prom
 class GrandparentLoader(DataLoader):
     @genfunc_to_prom
     def get_grandparent_for_single_key(self,key):
-        parent = await person_loader.load(key)
-        return await person_loader.load(parent.parent_id)
+        parent = yield person_loader.load(key)
+        grandparent = yield person_loader.load(parent.parent_id)
+        return grandparent
 
     def batch_load(self,keys):
         return Promise.all([self.get_grandparent_for_single_key(key) for key in keys])
@@ -80,8 +87,8 @@ class MyPersonType(graphene.ObjectType):
     # ...
     @genfunc_to_prom
     def resolve_grandparent(self,info):
-        parent = await person_loader.load(person.parent_id)
-        grandparent = await person_loader.load(parent.parent_id)
+        parent = yield person_loader.load(person.parent_id)
+        grandparent = yield person_loader.load(parent.parent_id)
         return grandparent
 
 ```
