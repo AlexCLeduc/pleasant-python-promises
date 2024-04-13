@@ -1,0 +1,5 @@
+black==24.3.0
+graphene==3.1.1     
+graphene-django==3.0.0
+promise==2.3
+pytest===5.3.2
